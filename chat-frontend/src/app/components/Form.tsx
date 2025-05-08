@@ -10,7 +10,7 @@ const Form = ({ inputNameShow, inputRepeatPassword, path }: { inputNameShow: boo
     const [inputName, setInputName] = useState(inputNameShow);
     const [inputRPassword, setinputRPassword] = useState(inputRepeatPassword);
     const router = useRouter();
-    const user = useUser();
+    const { user, setUser } = useUser();
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
@@ -53,11 +53,8 @@ const Form = ({ inputNameShow, inputRepeatPassword, path }: { inputNameShow: boo
             const responseData = await response.json();
 
             if (response && path == 'login') {
-                user.name = responseData.name;
-                user.email = responseData.email;
-                user._id = responseData._id;
-                user.token = responseData.token;
-                localStorage.setItem('token', responseData.token)
+                setUser(responseData);
+                localStorage.setItem('user', JSON.stringify(responseData))
             }
 
             console.log(user)
@@ -70,7 +67,7 @@ const Form = ({ inputNameShow, inputRepeatPassword, path }: { inputNameShow: boo
             if (path == 'register') {
                 router.push('/Login')
             } else if (path == 'login') {
-                router.push('/Login')
+                router.push('/Chat')
             }
 
 

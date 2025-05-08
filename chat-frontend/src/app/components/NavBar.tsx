@@ -17,11 +17,11 @@ const NavBar = () => {
 
   }
 
-  const token = localStorage.getItem('token')
-  const user = decodeToken(token) ;
+  const user = localStorage.getItem('user')
+  
   let userImage = ''
-  if (!token) {
-    userImage = '../../public/account.png'
+  if (!user) {
+    userImage = 'https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain'
   } else {
     userImage = 'https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain'
   }
