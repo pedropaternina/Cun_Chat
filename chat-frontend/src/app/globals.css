@@ -6,7 +6,13 @@
       font-family: "Nunito", sans-serif;
       background: rgb(248, 248, 248);
     }
-  
+    
+    img{
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+    }
+
     /* All users */
     .all-users {
       display: flex;
@@ -211,3 +217,5 @@
       align-items: center;
       justify-content: center;
     }
+
+    
