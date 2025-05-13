@@ -1,145 +1,97 @@
 "use client";
 
-import { useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "../user-provider";
+import InfinityLoader from "../Loader"; // Asegúrate de que esta importación sea correcta
 
 const NavBar = () => {
-    const [open, setOpen] = useState(false);
+    const { user, isLoading } = useUser();
+    const router = useRouter();
+    const [redirecting, setRedirecting] = useState(false);
 
-    const decodeToken = (token: any) => {
-        try {
-            return jwtDecode(token);
-        } catch (error) {
-            console.log(error);
-            return null;
+    useEffect(() => {
+        if (!isLoading && (!user || !user._id)) {
+            setRedirecting(true);
+            router.push("/Login"); // Redirige si el usuario no está autenticado
         }
-    };
+    }, [user, isLoading, router]);
 
-    const user = localStorage.getItem("user");
-
-    let userImage = "";
-    if (!user) {
-        userImage =
-            "https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain";
-    } else {
-        userImage =
-            "https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain";
+    if (isLoading || redirecting) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-white">
+                <InfinityLoader />
+            </div>
+        );
     }
 
-    const openUserNav = () => {
-        setOpen(!open);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        router.push("/Login");
     };
 
+    const userImage =
+        "https://th.bing.com/th/id/R.c3631c652abe1185b1874da24af0b7c7?rik=XBP%2fc%2fsPy7r3HQ&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-circled-user-icon-2240.png&ehk=z4ciEVsNoCZtWiFvQQ0k4C3KTQ6wt%2biSysxPKZHGrCc%3d&risl=&pid=ImgRaw&r=0";
+
     return (
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-                <a className="navbar-brand d-flex align-items-center" href="#">
-                    <img
-                        src="https://flowbite.com/docs/images/logo.svg"
-                        alt="Logo"
-                        width="30"
-                        height="30"
-                        className="d-inline-block align-text-top me-2"
-                    />
-                    Flowbite
+        <nav className="bg-white border-b shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <a href="/" className="flex items-center space-x-2">
+                    <img src="https://th.bing.com/th/id/R.e609f215504729e434d0e435fc1a9487?rik=hlBZQqxx4Uj0gQ&riu=http%3a%2f%2fwww.radcolombia.org%2fweb%2fsites%2fdefault%2ffiles%2farchivos%2finstituciones%2fcorporacion-unificada-nacional-educacion-superior%2flogo-cun.png&ehk=b2JJI4J84umR%2fpY2iWTLvVi%2fkGW%2bajxdV6c8pDmgKc4%3d&risl=&pid=ImgRaw&r=0" alt="Logo" className="w-6 h-6" />
+                    <span className="font-semibold text-xl">Cun_Chat</span>
                 </a>
 
-                <button
-                    className="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarNavDropdown"
-                    aria-controls="navbarNavDropdown"
-                    aria-expanded="false"
-                    aria-label="Toggle navigation"
-                >
-                    <span className="navbar-toggler-icon"></span>
+                <button onClick={toggleMenu} className="lg:hidden text-gray-700 focus:outline-none">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
                 </button>
 
-                <div className="collapse navbar-collapse" id="navbarNavDropdown">
-                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li className="nav-item">
-                            <a className="nav-link active" aria-current="page" href="/">
-                                Home
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="/Register">
-                                Register
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="/Login">
-                                Login
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">
-                                a
-                            </a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">
-                                Contact
-                            </a>
-                        </li>
-                    </ul>
+                <ul className={`lg:flex space-x-6 items-center ${menuOpen ? "block" : "hidden"} lg:block mt-4 lg:mt-0`}>
+                    <li><a href="/" className="text-gray-700 hover:text-blue-600">Home</a></li>
+                    <li><a href="/Chat" className="text-gray-700 hover:text-blue-600">Chats</a></li>
+                    {!user && (
+                        <>
+                            <li><a href="/Register" className="text-gray-700 hover:text-blue-600">Register</a></li>
+                            <li><a href="/Login" className="text-gray-700 hover:text-blue-600">Login</a></li>
+                        </>
+                    )}
+                </ul>
 
-                    <div className="dropdown">
+                {user && (
+                    <div className="relative ml-4">
                         <button
-                            className="btn btn-secondary dropdown-toggle d-flex align-items-center"
-                            type="button"
-                            id="userMenu"
-                            onClick={openUserNav}
-                            aria-expanded={open ? "true" : "false"}
+                            onClick={toggleDropdown}
+                            className="flex items-center space-x-2 focus:outline-none"
                         >
-                            <img
-                                src={userImage}
-                                alt="User"
-                                className="rounded-circle me-2"
-                                width="30"
-                                height="30"
-                            />
-                            User
+                            <img src={userImage} className="w-8 h-8 rounded-full" alt="User" />
+                            <span className="text-gray-700">{user?.name || "User"}</span>
                         </button>
 
-                        {open && (
-                            <ul
-                                className="dropdown-menu dropdown-menu-end show"
-                                aria-labelledby="userMenu"
-                                style={{ position: "absolute", top: "100%", right: 0 }}
-                            >
-                                <li className="px-3 py-2">
-                                    <span className="d-block text-dark">User Name</span>
-                                    <small className="text-muted">name@flowbite.com</small>
-                                </li>
-                                <li>
-                                    <hr className="dropdown-divider" />
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="/">
-                                        Home
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="/Register">
-                                        Register
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="/Login">
-                                        Login
-                                    </a>
-                                </li>
-                                <li>
-                                    <a className="dropdown-item" href="#">
-                                        Sign out
-                                    </a>
-                                </li>
-                            </ul>
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50">
+                                <div className="px-4 py-2">
+                                    <p className="font-semibold">{user?.name}</p>
+                                    <p className="text-sm text-gray-500">{user?.email}</p>
+                                </div>
+                                <hr />
+                                <a href="/" className="block px-4 py-2 hover:bg-gray-100">Home</a>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                >
+                                    Sign out
+                                </button>
+                            </div>
                         )}
                     </div>
-                </div>
+                )}
             </div>
         </nav>
     );

@@ -1,111 +1,100 @@
-"use client"
+"use client";
 
-import { useState } from "react";
-import { jwtDecode } from "jwt-decode";
-
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "./user-provider"; 
+import InfinityLoader from "./Loader"; // Asegúrate de que esta importación sea correcta
 
 const NavBar = () => {
-  const [open, setOpen] = useState(false);
+    const { user, isLoading } = useUser();
+    const router = useRouter();
+    const [redirecting, setRedirecting] = useState(false);
 
-  const decodeToken = (token: any) => {
-    try {
-      return jwtDecode(token)
-    } catch (error) {
-      console.log(error)
-      return null
+    useEffect(() => {
+        if (!isLoading && (!user || !user._id)) {
+            setRedirecting(true);
+            router.push("/Login"); // Redirige si el usuario no está autenticado
+        }
+    }, [user, isLoading, router]);
+
+    if (isLoading || redirecting) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-white">
+                <InfinityLoader />
+            </div>
+        );
     }
 
-  }
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const user = localStorage.getItem('user')
-  
-  let userImage = ''
-  if (!user) {
-    userImage = 'https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain'
-  } else {
-    userImage = 'https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?rs=1&pid=ImgDetMain'
-  }
+    const toggleMenu = () => setMenuOpen(!menuOpen);
+    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-  console.log(user)
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        router.push("/Login");
+    };
 
-  const openUserNav = () => {
-    setOpen(!open);
-  }
+    const userImage =
+        "https://th.bing.com/th/id/R.c3631c652abe1185b1874da24af0b7c7?rik=XBP%2fc%2fsPy7r3HQ&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-circled-user-icon-2240.png&ehk=z4ciEVsNoCZtWiFvQQ0k4C3KTQ6wt%2biSysxPKZHGrCc%3d&risl=&pid=ImgRaw&r=0";
 
+    return (
+        <nav className="bg-white border-b shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+                <a href="/" className="flex items-center space-x-2">
+                    <img src="https://th.bing.com/th/id/R.e609f215504729e434d0e435fc1a9487?rik=hlBZQqxx4Uj0gQ&riu=http%3a%2f%2fwww.radcolombia.org%2fweb%2fsites%2fdefault%2ffiles%2farchivos%2finstituciones%2fcorporacion-unificada-nacional-educacion-superior%2flogo-cun.png&ehk=b2JJI4J84umR%2fpY2iWTLvVi%2fkGW%2bajxdV6c8pDmgKc4%3d&risl=&pid=ImgRaw&r=0" alt="Logo" className="w-6 h-6" />
+                    <span className="font-semibold text-xl">Cun_Chat</span>
+                </a>
 
+                <button onClick={toggleMenu} className="lg:hidden text-gray-700 focus:outline-none">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
 
-  return (
-    <>
-
-
-      <nav className="bg-white border-gray-200 dark:bg-gray-900">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <a href="https://flowbite.com/" className="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="https://flowbite.com/docs/images/logo.svg" className="h-8" alt="Flowbite Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
-          </a>
-          <div className="relative flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <button onClick={openUserNav} type="button" className="flex text-sm bg-gray-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
-              <span className="sr-only">Open user menu</span>
-              <img className="w-8 h-8 rounded-full" src={userImage} alt="user photo"></img>
-            </button>
-
-            {open && (
-              <div
-                className="absolute right-0 top-12 w-48 bg-white divide-y divide-gray-100 rounded-lg shadow-lg dark:bg-gray-700 dark:divide-gray-600"
-              >                <div className="px-4 py-3">
-                  <span className="block text-sm text-gray-900 dark:text-white">{ }</span>
-                  <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">name@flowbite.com</span>
-                </div>
-                <ul className="py-2" aria-labelledby="user-menu-button">
-                  <li>
-                    <a href="/" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Home</a>
-                  </li>
-                  <li>
-                    <a href="/Register" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Register</a>
-                  </li>
-                  <li>
-                    <a href="/Login" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Login</a>
-                  </li>
-                  <li>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</a>
-                  </li>
+                <ul className={`lg:flex space-x-6 items-center ${menuOpen ? "block" : "hidden"} lg:block mt-4 lg:mt-0`}>
+                    <li><a href="/" className="text-gray-700 hover:text-blue-600">Home</a></li>
+                    <li><a href="/Chat" className="text-gray-700 hover:text-blue-600">Chats</a></li>
+                    {!user && (
+                        <>
+                            <li><a href="/Register" className="text-gray-700 hover:text-blue-600">Register</a></li>
+                            <li><a href="/Login" className="text-gray-700 hover:text-blue-600">Login</a></li>
+                        </>
+                    )}
                 </ul>
-              </div>
 
-            )}
+                {user && (
+                    <div className="relative ml-4">
+                        <button
+                            onClick={toggleDropdown}
+                            className="flex items-center space-x-2 focus:outline-none"
+                        >
+                            <img src={userImage} className="w-8 h-8 rounded-full" alt="User" />
+                            <span className="text-gray-700">{user?.name || "User"}</span>
+                        </button>
 
-            <button data-collapse-toggle="navbar-user" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-user" aria-expanded="false">
-              <span className="sr-only">Open main menu</span>
-              <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
-              </svg>
-            </button>
-          </div>
-          <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li>
-                <a href="/" className="block py-2 px-3 text-white bg-blue-700 rounded-sm md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Home</a>
-              </li>
-              <li>
-                <a href="/Register" className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Register</a>
-              </li>
-              <li>
-                <a href="/Login" className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Login</a>
-              </li>
-              <li>
-                <a href="#" className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">a</a>
-              </li>
-              <li>
-                <a href="#" className="block py-2 px-3 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-
-
-    </>);
-}
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-50">
+                                <div className="px-4 py-2">
+                                    <p className="font-semibold">{user?.name}</p>
+                                    <p className="text-sm text-gray-500">{user?.email}</p>
+                                </div>
+                                <hr />
+                                <a href="/" className="block px-4 py-2 hover:bg-gray-100">Home</a>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                                >
+                                    Sign out
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </nav>
+    );
+};
 
 export default NavBar;

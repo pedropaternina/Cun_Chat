@@ -1,6 +1,8 @@
 import { useFetchRecipient } from "@/app/hooks/useFetchRecipient";
 import InfinityLoader from "../Loader";
 import { Stack } from "react-bootstrap";
+import { useContext } from "react";
+import { ChatContext } from "@/app/context/ChatContex";
 
 interface UserChatProps {
   chat: any;
@@ -16,12 +18,15 @@ export interface User {
 
 const UserChat: React.FC<UserChatProps> = ({ chat, user }) => {
   const { recipientUser } = useFetchRecipient(chat, user);
+
   if(!recipientUser){
     return <InfinityLoader></InfinityLoader>
   }
   const recipient = recipientUser as unknown as User;
   console.log(recipient?.name)
- 
+  const {onlineUsers} = useContext(ChatContext);
+  const isOnline =  onlineUsers?.some((user:any) => user?.userId === recipientUser?._id)
+  
   return (
     <Stack
   role="button"
@@ -32,10 +37,10 @@ const UserChat: React.FC<UserChatProps> = ({ chat, user }) => {
   <div className="d-flex align-items-center">
     <div className="position-relative me-2">
       <img
-        src="https://th.bing.com/th/id/OIP.JYja9sPrMkY9BOHMq2IeBAHaJb?cb=iwp1&rs=1&pid=ImgDetMain"
+        src="https://th.bing.com/th/id/R.c3631c652abe1185b1874da24af0b7c7?rik=XBP%2fc%2fsPy7r3HQ&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fpng-user-icon-circled-user-icon-2240.png&ehk=z4ciEVsNoCZtWiFvQQ0k4C3KTQ6wt%2biSysxPKZHGrCc%3d&risl=&pid=ImgRaw&r=0"
         alt=""
       />
-      <span className="user-online"></span>
+      <span className={isOnline ?"user-online" : ""}></span>
     </div>
     <div className="text-content">
       <div className="name" style={{ color: "black" }}>

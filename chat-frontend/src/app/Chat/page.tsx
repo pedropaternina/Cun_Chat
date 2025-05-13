@@ -10,6 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import UserChat from "../components/Chat/UserChat";
 import PotentialChats from "../components/Chat/PotentialChats";
 import ChatBox from "../components/Chat/ChatBox";
+import NavBar from "../components/WBootstrap/NavBar_Bootstrap";
 
 const Chat = () => {
     const {user} = useUser();
@@ -20,7 +21,8 @@ const Chat = () => {
 
     return (
         <ProtectedRoute>
-       
+            <NavBar></NavBar>
+            <br></br>
             <Container>
                 <PotentialChats></PotentialChats>
                 {userChats?.length < 1 ? null : (
